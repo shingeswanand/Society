@@ -14,7 +14,7 @@ export default function Navbar() {
         {user?.isAdmin && (
   <>
     <Link href="/admin/dashboard">Dashboard</Link>
-    <Link href="/events">Events</Link>
+    <Link href="/admin/events">Events</Link>
     <Link href="/admin/users">Users</Link>
     <Link href="/admin/gallery">Gallery</Link>
   </>
