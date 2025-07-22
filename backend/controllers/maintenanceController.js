@@ -1,12 +1,22 @@
 import Maintenance from '../models/Maintenance.js';
 import User from '../models/User.js';
 
+// controllers/maintenanceController.js
+
 export const getAllRequests = async (req, res) => {
-  const requests = await Maintenance.find({})
-    .populate('user', 'name flatNumber email')
-    .sort({ createdAt: -1 });
-  res.json(requests);
+  try {
+    const requests = await Maintenance.find({})
+      .populate('user', 'name email flatNumber') // ✅ ensure this is present
+      .sort({ createdAt: -1 });
+
+    res.json(requests);
+  } catch (err) {
+    console.error('Error fetching requests:', err);
+    res.status(500).json({ message: 'Failed to load requests' });
+  }
 };
+
+
 
 export const updateRequestStatus = async (req, res) => {
   const { id } = req.params;
@@ -20,6 +30,7 @@ export const updateRequestStatus = async (req, res) => {
 
   res.json(request);
 };
+
 
 export const submitRequest = async (req, res) => {
   const { issue, description, flatNumber } = req.body;
@@ -35,7 +46,9 @@ export const submitRequest = async (req, res) => {
   res.status(201).json(request);
 };
 
+
 export const getMyRequests = async (req, res) => {
   const requests = await Maintenance.find({ user: req.user._id }).sort({ createdAt: -1 });
   res.json(requests);
 };
+
