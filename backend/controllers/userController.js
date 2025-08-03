@@ -25,3 +25,43 @@ export const loginUser = async (req, res) => {
 
   res.json({ token: generateToken(user._id, user.role), user });
 };
+
+
+export const getAllUsers = async (req, res) => {
+  try {
+    const users = await User.find().select('-password'); // hide passwords
+    res.json(users);
+  } catch (err) {
+    console.error('Fetch users failed:', err);
+    res.status(500).json({ message: 'Failed to fetch users' });
+  }
+};
+
+
+// PUT /users/:id/role - Change user role
+export const updateUserRole = async (req, res) => {
+  const { id } = req.params;
+  const { isAdmin } = req.body;
+
+  try {
+    const user = await User.findById(id);
+    if (!user) return res.status(404).json({ message: 'User not found' });
+
+    user.isAdmin = isAdmin;
+    await user.save();
+    res.json({ message: 'Role updated', user });
+  } catch (err) {
+    res.status(500).json({ message: 'Failed to update role' });
+  }
+};
+
+// DELETE /users/:id - Delete user
+export const deleteUser = async (req, res) => {
+  try {
+    const user = await User.findByIdAndDelete(req.params.id);
+    if (!user) return res.status(404).json({ message: 'User not found' });
+    res.json({ message: 'User deleted' });
+  } catch (err) {
+    res.status(500).json({ message: 'Delete failed' });
+  }
+};

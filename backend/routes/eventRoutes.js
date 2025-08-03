@@ -4,20 +4,22 @@ import {
   addEvent,
   updateEvent,
   deleteEvent,
-  getUpcomingEvents
+  registerForEvent,
+  getUpcomingEvents,
 } from '../controllers/eventController.js';
 
 import { protect, adminOnly } from '../middleware/auth.js';
 
 const router = express.Router();
 
+// Public routes
 router.get('/', getEvents);
-//router.post('/', protect, adminOnly, addEvent);
+router.get('/upcoming', getUpcomingEvents);
+router.post('/:id/register', protect, registerForEvent);
+
+// Admin routes
+router.post('/', protect, adminOnly, addEvent);
 router.put('/:id', protect, adminOnly, updateEvent);
 router.delete('/:id', protect, adminOnly, deleteEvent);
-
-router.post('/', addEvent);
-// GET /api/events/upcoming
-router.get('/upcoming', getUpcomingEvents);
 
 export default router;

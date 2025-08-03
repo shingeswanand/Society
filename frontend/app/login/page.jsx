@@ -3,30 +3,29 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import axios from '@/utils/axiosInstance';
+import { useAuth } from '@/app/context/AuthContext';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const router = useRouter();
-
+  const { login } = useAuth();
   const handleLogin = async (e) => {
     e.preventDefault();
-    setError('');
     try {
       const res = await axios.post('/auth/login', { email, password });
       const { token, user } = res.data;
 
-      localStorage.setItem('token', token);
-      localStorage.setItem('user', JSON.stringify(user));
+      login(user, token); // <-- update context and storage
 
       if (user.isAdmin) {
-        router.push('/admin/events');
+        router.push('/admin/dashboard');
       } else {
         router.push('/resident/dashboard');
       }
     } catch (err) {
-      setError(err.response?.data?.message || 'Login failed');
+      console.error(err);
     }
   };
 

@@ -1,14 +1,16 @@
 'use client';
+
 import withAuth from '@/utils/withAuth';
 import Layout from '@/components/Layout';
 import axios from '@/utils/axiosInstance';
 import { useEffect, useState } from 'react';
 
- function EventManagementPage() {
+function EventManagementPage() {
   const [events, setEvents] = useState([]);
-  const [form, setForm] = useState({ title: '', date: '', description: '' });
+  const [form, setForm] = useState({ name: '', date: '', description: '' });
   const [editId, setEditId] = useState(null);
 
+  
   const fetchEvents = async () => {
     try {
       const res = await axios.get('/events');
@@ -37,14 +39,19 @@ import { useEffect, useState } from 'react';
         const res = await axios.post('/events', form);
         setEvents((prev) => [...prev, res.data]);
       }
-      setForm({ title: '', date: '', description: '' });
+      setForm({ name: '', date: '', description: '' });
     } catch (err) {
-      console.error('Error saving event:', err);
+      console.error('Error saving event:', err.response?.data || err);
+      alert('Error: ' + (err.response?.data?.message || 'Failed to save event.'));
     }
   };
 
   const handleEdit = (event) => {
-    setForm(event);
+    setForm({
+      name: event.name,
+      date: event.date?.substring(0,10), // format date input
+      description: event.description
+    });
     setEditId(event._id);
   };
 
@@ -64,11 +71,11 @@ import { useEffect, useState } from 'react';
 
       <form onSubmit={handleSubmit} className="bg-white p-4 rounded shadow mb-6 space-y-4 max-w-xl">
         <input
-          name="title"
-          value={form.title}
+          name="name"
+          value={form.name}
           onChange={handleChange}
-          placeholder="Event Title"
-          className="input"
+          placeholder="Event Name"
+          className="border px-3 py-2 rounded w-full"
           required
         />
         <input
@@ -76,7 +83,7 @@ import { useEffect, useState } from 'react';
           name="date"
           value={form.date}
           onChange={handleChange}
-          className="input"
+          className="border px-3 py-2 rounded w-full"
           required
         />
         <textarea
@@ -84,7 +91,7 @@ import { useEffect, useState } from 'react';
           value={form.description}
           onChange={handleChange}
           placeholder="Event Description"
-          className="input"
+          className="border px-3 py-2 rounded w-full"
           required
         />
         <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded">
@@ -95,14 +102,22 @@ import { useEffect, useState } from 'react';
       <div className="grid gap-4 md:grid-cols-2">
         {events.map((event) => (
           <div key={event._id} className="bg-white p-4 shadow rounded space-y-2">
-            <h2 className="text-lg font-bold">{event.title}</h2>
-            <p className="text-sm text-gray-500">{event.date}</p>
+            <h2 className="text-lg font-bold">{event.name}</h2>
+            <p className="text-sm text-gray-500">
+              {new Date(event.date).toLocaleDateString()}
+            </p>
             <p>{event.description}</p>
             <div className="flex gap-2">
-              <button onClick={() => handleEdit(event)} className="text-blue-600 hover:underline">
+              <button
+                onClick={() => handleEdit(event)}
+                className="text-blue-600 hover:underline"
+              >
                 Edit
               </button>
-              <button onClick={() => handleDelete(event._id)} className="text-red-600 hover:underline">
+              <button
+                onClick={() => handleDelete(event._id)}
+                className="text-red-600 hover:underline"
+              >
                 Delete
               </button>
             </div>
@@ -112,4 +127,5 @@ import { useEffect, useState } from 'react';
     </Layout>
   );
 }
+
 export default withAuth(EventManagementPage, { adminOnly: true });
