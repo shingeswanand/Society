@@ -27,6 +27,7 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${inter.variable} ${robotoMono.variable}`}>
         <AuthProvider>
+          <Navbar />
         {children}
         </AuthProvider>
       </body>
