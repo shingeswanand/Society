@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter, Roboto_Mono } from "next/font/google";
 import "./globals.css";
+import { AuthProvider } from "./context/AuthContext"; // Adjust path
 
 const inter = Inter({
   variable: "--font-sans",
@@ -25,7 +26,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${inter.variable} ${robotoMono.variable}`}>
+        <AuthProvider>
         {children}
+        </AuthProvider>
       </body>
     </html>
   );
